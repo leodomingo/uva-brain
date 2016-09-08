@@ -1,8 +1,10 @@
 # Jack Morris 09/06/16
 
 from bs4 import BeautifulSoup
+import csv
 import urllib
 
+outfile = "out.csv"
 
 all_scholars_url = "http://www.jeffersonscholars.org/scholars"
 scholar_link_base = "http://www.jeffersonscholars.org"
@@ -31,9 +33,23 @@ for scholar_link in scholar_links:
   soup = BeautifulSoup(r, "lxml")
   #
   scholar = {}
-  scholar["name"] = soup.find_all("h1", class_="title")[0].get_text().strip()
-  scholar["age"]  = soup.find_all("div", class_="field-class")[0].get_text().strip()
-  scholar["town"] = soup.find_all("div", class_="field-hometown")[0].get_text().strip()
-  print scholar
+  scholar["name"] = soup.find_all("h1", class_="title")[0].get_text().encode("utf-8").strip()
+  scholar["year"]  = soup.find_all("div", class_="field-class")[0].get_text().encode("utf-8").strip()
+  scholar["town"] = soup.find_all("div", class_="field-hometown")[0].get_text().encode("utf-8").strip()[9:] # remove "Hometown "
+  # print scholar
+  scholars . append( scholar )
   #
 #
+
+# write to csv
+with open(outfile, 'wb') as csvfile:
+  #
+  csvwriter = csv.writer(csvfile, delimiter=',', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
+  csvwriter.writerow(["Name", "Year", "Hometown"])
+  #
+  for scholar in scholars:
+    #
+    csvwriter.writerow([ scholar["name"], scholar["year"], scholar["town"] ])
+    #
+  #
+print "successfully wrote to " + outfile
